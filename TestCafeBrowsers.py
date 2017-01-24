@@ -41,15 +41,15 @@ def write_to_file(file_name, content):
     f.close()
 
 
-def get_browser_list():
-    proc = process_runner.run('testcafe --list-browsers')
+def get_browser_list(dirname):
+    proc = process_runner.run('testcafe --list-browsers', dirname)
     result = proc.communicate()[0]
     process_runner.kill(proc)
     return result.decode('utf-8').strip().split('\n')
 
 
-def update_browsers():
-    browser_list = get_browser_list()
+def update_browsers(dirname):
+    browser_list = get_browser_list(dirname)
     templates = copy.deepcopy(TEMPLATES)
 
     for browser in browser_list:
@@ -79,7 +79,12 @@ def update_browsers():
 
 class TestCafeBrowsersCommand(sublime_plugin.WindowCommand):
     def run(self):
-        update_browsers()
+        file_name = self.window.active_view().file_name()
+        if file_name is not None:
+            dirname = os.path.dirname(file_name)
+        elif self.window.folders() is not None:
+            dirname = self.window.folders()[0]
+        update_browsers(dirname)
 
 
 if not os.path.isfile(os.path.join(PACKAGE_PATH, COMMANDS_FILE_NAME)):
