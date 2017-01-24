@@ -8,9 +8,6 @@ def makeAbsolute(file_name, dirname):
     else:
         localLookup = 'npm bin'
 
-    print(dirname)
-    print(localLookup)
-
     proc = subprocess.Popen(localLookup + ' && npm bin -g', stdout=subprocess.PIPE, env=os.environ, shell=True)
     result = proc.communicate()[0]
     paths = result.decode('utf-8').strip().split('\n')
@@ -30,11 +27,9 @@ def run(cmd, dirname):
         proc = subprocess.Popen(['/usr/bin/login -fqpl $USER $SHELL -l -c \'' + cmd + '\''], stdout=subprocess.PIPE,
                                 shell=True)
     elif sys.platform == 'linux':
-        # TODO:
         cmd = cmd.split(' ')
         cmd[0] = makeAbsolute(cmd[0], dirname)
         cmd = ' '.join(cmd)
-        print(cmd)
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
 
     return proc
