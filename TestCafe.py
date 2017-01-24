@@ -14,11 +14,12 @@ FIND_TEST_OR_FIXTURE_RE = '(^|;|\s+)fixture\s*(\(.+?\)|`.+?`)|(^|;|\s+)test\s*\(
 CLEANUP_TEST_OR_FIXTURE_NAME_RE = '(^\s*(\'|"|`))|((\'|"|`)\s*$)'
 
 class AsyncProcess(object):
-    def __init__(self, cmd, listener):
+    def __init__(self, cmd, listener, file_name):
         self.listener = listener
+        self.file_name = file_name
         self.killed = False
 
-        self.proc = process_runner.run(cmd)
+        self.proc = process_runner.run(cmd, os.path.dirname(self.file_name))
 
         if self.proc.stdout:
             threading.Thread(target=self.read_stdout).start()
@@ -142,7 +143,7 @@ class TestCafeCommand(sublime_plugin.TextCommand):
         if show_panel_on_build:
             window.run_command('show_panel', {'panel': 'output.testcafe'})
 
-        self.proc = AsyncProcess(testcafe_cmd, self)
+        self.proc = AsyncProcess(testcafe_cmd, self, file_name)
 
         self.text_queue_lock.acquire()
         try:
